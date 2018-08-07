@@ -86,7 +86,7 @@ static void *thread_func(void *arg){
     server.sin_port = 0;    //设置数据传输socket端口号
     // 数据传输socket绑定server地址
     if (bind(sockfd, (struct sockaddr *)&server, addr_len) < 0){
-        printf("绑定失败！");
+        printf("数据传输socket绑定失败！");
         return NULL;
     }
     // 与客户端建立连接
@@ -109,7 +109,6 @@ static void *thread_func(void *arg){
         }
         default:{
             printf("错误的指令，请检查后重试！");
-
             break;
         }
     }
