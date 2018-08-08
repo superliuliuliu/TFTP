@@ -69,8 +69,11 @@ int send_ack(int sockfd, struct tftp_packet *packet, int size){
  * @return void*与上面参数arg相似
  */
 static void *thread_func(void *arg){
-    struct tftp_request *request = (struct tftp_request *)arg;
+    //struct tftp_request *request = (struct tftp_request *)arg;
+    struct deliever_para *deliever = (struct deliever_para*)arg;
     int sockfd;
+    //使用的线程下标
+    int inx = deliever->thread_index;
     struct sockaddr_in server;
     static socklen_t addr_len = sizeof(struct sockaddr_in);//this struct has a static length
     printf("新的客户端与TFTP服务器端建立连接，当前连接的客户端数:%d\n", ++connect_counter);//设置全局变量来记录连接的客户端数 后面实现
@@ -90,12 +93,12 @@ static void *thread_func(void *arg){
         return NULL;
     }
     // 与客户端建立连接
-    if (connect(sockfd, (struct sockaddr *)&(request->client), addr_len) < 0){
+    if (connect(sockfd, (struct sockaddr *)&(deliever->request.client), addr_len) < 0){
         printf("连接到客户端失败！");
         return NULL;
     }
     //判断客户端发出的请求
-    switch(request->optcode){
+    switch(deliever->request.optcode){
         case OPTCODE_RRQ:{
             printf("正在处理客户端：%d 的文件下载请求！",connect_counter);
             file_download(request, sockfd);
@@ -107,6 +110,9 @@ static void *thread_func(void *arg){
             file_upload(request, sockfd);
             break;
         }
+        /*case OPTCODE_END:{
+
+        }*/
         default:{
             printf("错误的指令，请检查后重试！");
             break;

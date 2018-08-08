@@ -29,6 +29,7 @@
 #define MAX_TIEM_WAIT 1000*1000 // 等待ACK确认报文的最大时间为1秒
 #define DEFAULT_PORT (unsigned short) 7341     //客户端的默认监听端口号
 #define MAX_PACKET_REQUEST 1024 //最大请求报文长度1024字节
+#define MAX_THREAD_SIZE 16      //最大子线程数，对应最大允许连接的客户端数
 
 /*
  *  TFTP报文数据结构
@@ -55,19 +56,34 @@ struct tftp_request{
   struct tftp_packet packet;   //报文
 };
 
+// 线程记录结构体
+struct thread_record {
+  bool usable = true;           //线程是否被使用
+  pthread_t tid;                //线程ID
+};
+
+// 为了在pthread_create()中传递多个参数
+struct deliever_para{
+  struct tftp_request request;
+  int thread_index;
+}
+
 //全局变量
 int connect_counter = 0;       //全局变量：记录连接的客户端数目
-char *list = ".";             //目录变量  初始化为当前目录"."
+char *list = ".";              //目录变量  初始化为当前目录"."
+struct thread_record customer[MAX_THREAD_SIZE];   //结构体数组
 
 /*
-*  该模块包括以下子功能
-*   1.报文发送功能
-*   2.服务器端处理客户端请求线程功能
+*  服务器端调用的函数
 */
 int send_packet(int sockfd, struct tftp_packet *packet, int size);
 int send_ack(int sockfd, struct tftp_packet *packet, int size);
 static void *thread_func(void *arg);
 void file_download(struct tftp_request *request, int sockfd);
 void file_upload(struct tftp_request *request, int sockfd);
+
+/*
+*  客户端调用的函数
+ */
 
 #endif
