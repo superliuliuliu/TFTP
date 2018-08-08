@@ -82,8 +82,5 @@ static void *thread_func(void *arg);
 void file_download(struct tftp_request *request, int sockfd);
 void file_upload(struct tftp_request *request, int sockfd);
 
-/*
-*  客户端调用的函数
- */
 
 #endif
