@@ -203,10 +203,10 @@ void file_download(struct tftp_request *request, int sockfd){
      info = localtime(&rawtime);
 
      if (success == true){
-        fprintf(fp_log, "客户端:%d   下载文件:%s   时间:%s  操作成功！\n", blocksize, filename, asctime(info));
+        fprintf(fp_log, "客户端:%d   下载文件:%s   时间:%s  操作成功！\n", connect_counter, filename, asctime(info));
      }
      else{
-        fprintf(fp_log, "客户端:%d   下载文件:%s   时间:%s  操作失败:服务器发送文件块失败！\n", blocksize, filename, asctime(info));
+        fprintf(fp_log, "客户端:%d   下载文件:%s   时间:%s  操作失败:服务器发送文件块失败！\n", connect_counter, filename, asctime(info));
      }
      //关闭文件
      fclose(fp);
@@ -267,7 +267,7 @@ void file_upload(struct tftp_request *request, int sockfd){
 	   if (fp != NULL){
 		     fclose(fp);
 		     printf("文件 %s 已经存在.\n", filepath);
-         fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败:服务器端已存在文件！\n", blocksize, filename, asctime(info));
+         fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败:服务器端已存在文件！\n", connect_counter, filename, asctime(info));
          fclose(fp_log);
          return;
 	   }
@@ -276,7 +276,7 @@ void file_upload(struct tftp_request *request, int sockfd){
      if (fp == NULL){
          printf("文件创建失败！");
          fclose(fp);
-         fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败：服务器端创建文件失败！\n", blocksize, filename, asctime(info));
+         fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败：服务器端创建文件失败！\n", connect_counter, filename, asctime(info));
          fclose(fp_log);
          return;
      }
@@ -286,7 +286,7 @@ void file_upload(struct tftp_request *request, int sockfd){
      ack_packet.block = htons(0);
      if (send_ack(sockfd, &ack_packet, 4) == -1){
          fprintf(stderr, "服务器端发送响应请求ACK失败.\n");
-         fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败：服务器端发送响应请求ACK失败！\n", blocksize, filename, asctime(info));
+         fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败：服务器端发送响应请求ACK失败！\n", connect_counter, filename, asctime(info));
          fclose(fp_log);
          fclose(fp);
          return;
@@ -332,7 +332,7 @@ void file_upload(struct tftp_request *request, int sockfd){
          ack_packet.optcode = htons(OPTCODE_ACK);
          if (send_ack(sockfd, &ack_packet, 4) == -1){
              fprintf(stderr, "服务器端ACK失败.\n");
-             fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败：服务器端发送响应请求ACK失败！\n", blocksize, filename, asctime(info));
+             fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败：服务器端发送响应请求ACK失败！\n", connect_counter, filename, asctime(info));
              fclose(fp_log);
              fclose(fp);
              return;
@@ -340,11 +340,11 @@ void file_upload(struct tftp_request *request, int sockfd){
      }while(recv_size == DATASIZE + 4)
 
      if (success == true){
-        fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作成功！\n", blocksize, filename, asctime(info));
+        fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作成功！\n", connect_counter, filename, asctime(info));
         printf("文件%s上传成功！", filename);
      }
      else{
-        fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败！\n", blocksize, filename, asctime(info));
+        fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败！\n", connect_counter, filename, asctime(info));
      }
      //关闭文件
      fclose(fp);
