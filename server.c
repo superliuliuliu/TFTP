@@ -38,7 +38,7 @@ int main(int argc, char **argv){
     //用于线程创建函数中的参数传递  该参数包含请求报文与线程id来标志时哪一个线程
     struct deliever_para *deliever;
     //struct tftp_request *request;
-    int addr_len = sizeof(struct sockaddr_in);
+    socklen_t addr_len = sizeof(struct sockaddr_in);
     //监听进程一直在运行
     while(true){
         printf("此时与服务器端建立连接数为:%d", connect_counter);
