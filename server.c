@@ -39,6 +39,11 @@ int main(int argc, char **argv){
     struct deliever_para *deliever;
     //struct tftp_request *request;
     socklen_t addr_len = sizeof(struct sockaddr_in);
+    //对线程数组进行初始化
+    int i;
+    for(i = 0; i < MAX_THREAD_SIZE; i++){
+        customer[i].usable = true;
+    }
     //监听进程一直在运行
     while(true){
         printf("此时与服务器端建立连接数为:%d", connect_counter);
