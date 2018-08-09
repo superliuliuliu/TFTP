@@ -310,7 +310,7 @@ void file_upload(struct tftp_request request, int sockfd){
                  printf("DATA报文传输错误,将重传！\n");
              }
              if ((recv_size >= 4) && (recv_packet.optcode = htons(OPTCODE_DATA)) && (recv_packet.block == htons(block))){
-                 printf("正在接收第%d个文件块...\n", blcok);
+                 printf("正在接收第%d个文件块...\n", block);
                  write_size = fwrite(recv_packet.data, 1, recv_size - 4, fp);
                  if (write_size == recv_size - 4){
                      break;

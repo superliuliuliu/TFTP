@@ -79,8 +79,8 @@ struct thread_record customer[MAX_THREAD_SIZE];   //结构体数组
 int send_packet(int sockfd, struct tftp_packet *packet, int size);
 int send_ack(int sockfd, struct tftp_packet *packet, int size);
 static void *thread_func(void *arg);
-void file_download(struct tftp_request *request, int sockfd);
-void file_upload(struct tftp_request *request, int sockfd);
+void file_download(struct tftp_request request, int sockfd);
+void file_upload(struct tftp_request request, int sockfd);
 
 
 #endif
