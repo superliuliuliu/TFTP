@@ -1,6 +1,9 @@
 # include "tftp.h"
 
-
+//全局变量
+int connect_counter = 0;       //全局变量：记录连接的客户端数目
+char *list = ".";              //目录变量  初始化为当前目录"."
+struct thread_record customer[MAX_THREAD_SIZE];   //结构体数组
 /*
  *服务器端运行主函数
  * 主进程：一直运行的进程   创建一个监听socket

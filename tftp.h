@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <stdbool.h>
-#include <unistd.h> 
+#include <unistd.h>
 
 /*
 * TFTP报文中的操作码占两个字节  定义为short类型
@@ -68,12 +68,10 @@ struct deliever_para{
   int thread_index;
 };
 
-//全局变量
-int connect_counter = 0;       //全局变量：记录连接的客户端数目
-char *list = ".";              //目录变量  初始化为当前目录"."
-struct thread_record customer[MAX_THREAD_SIZE];   //结构体数组
-
-
+//声明全局变量
+extern int connect_counter;
+extern char *list;
+extern struct thread_record customer[MAX_THREAD_SIZE];
 /*
 *  服务器端调用的函数
 */
