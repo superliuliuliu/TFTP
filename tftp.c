@@ -32,7 +32,7 @@ int send_packet(int sockfd, struct tftp_packet *packet, int size){
              * 是：跳出该停止等待机制
              * 不是：睡眠10000微妙，重复以上循环,继续等待ACK报文。
              */
-            if ((r_size >= 4)&&(recv_packet->optcode == htons(OPTCODE_ACK))&&(recv_packet->block == packet->block)){
+            if ((r_size >= 4)&&(recv_packet.optcode == htons(OPTCODE_ACK))&&(recv_packet.block == packet->block)){
                 break;
             }
             usleep(10000);
@@ -101,13 +101,13 @@ static void *thread_func(void *arg){
     switch(deliever->request.optcode){
         case OPTCODE_RRQ:{
             printf("正在处理客户端：%d 的文件下载请求！",connect_counter);
-            file_download(request, sockfd);
+            file_download(deliever->request, sockfd);
             break;
         }
         case OPTCODE_WRQ:{
             printf("正在处理客户端：%d 的文件上传请求！",connect_counter);
             //此处应该有一个处理上传文件的函数
-            file_upload(request, sockfd);
+            file_upload(deliever->request, sockfd);
             break;
         }
         /*case OPTCODE_END:{
@@ -120,7 +120,6 @@ static void *thread_func(void *arg){
     }
     //数据传输完成后关闭用于数据传输的socket一起释放所分配的内存空间
     close(sockfd);
-    free(request);
     return NULL;
 }
 
@@ -130,14 +129,14 @@ static void *thread_func(void *arg){
  * @param  sockfd   文件描述符 对应服务器端在子线程中用于数据传输的socket
  * @return   暂时未定,函数功能框架确定后，再来确定返回值及其代表的含义
  */
-void file_download(struct tftp_request *request, int sockfd){
+void file_download(struct tftp_request request, int sockfd){
     struct tftp_packet s_packet;               //用于封装发送数据的报文结构
     char filepath[256];                          //用来存储文件路径
     /*
      *根据packet结构体的结构  确定报文传输数据块的大小
      *|-filename-'0'-mode-'0'-blocksize_str-|
      */
-    char *filename = request->packet.filename;    //文件名指针
+    char *filename = request.packet.filename;    //文件名指针
     char *mode = filename + strlen(filename) + 1; //文件模式指针
     char *blocksize_str = mode + strlen(mode) + 1;
     int blocksize = atoi(blocksize_str);         //文件的大小
@@ -220,14 +219,14 @@ void file_download(struct tftp_request *request, int sockfd){
  * @param  sockfd  文件描述符
  * @return  同上
  */
-void file_upload(struct tftp_request *request, int sockfd){
+void file_upload(struct tftp_request request, int sockfd){
     struct tftp_packet ack_packet, recv_packet;
     char filepath[256];                          //用来存储文件路径
     /*
      *根据packet结构体的结构  确定报文传输数据块的大小
      *|-filename-'0'-mode-'0'-blocksize_str-|
      */
-    char *filename = request->packet.filename;    //文件名指针
+    char *filename = request.packet.filename;    //文件名指针
     char *mode = filename + strlen(filename) + 1; //文件模式指针
     char *blocksize_str = mode + strlen(mode) + 1;
     int blocksize = atoi(blocksize_str);         //文件的大小
@@ -312,7 +311,7 @@ void file_upload(struct tftp_request *request, int sockfd){
              }
              if ((recv_size >= 4) && (recv_packet.optcode = htons(OPTCODE_DATA)) && (recv_packet.block == htons(block))){
                  printf("正在接收第%d个文件块...\n", blcok);
-                 write_size = fwrite(rcev_packet.data, 1, recv_size - 4, fp);
+                 write_size = fwrite(recv_packet.data, 1, recv_size - 4, fp);
                  if (write_size == recv_size - 4){
                      break;
                  }

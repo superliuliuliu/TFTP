@@ -57,7 +57,7 @@ struct tftp_request{
 
 // 线程记录结构体
 struct thread_record {
-  bool usable = true;           //线程是否被使用
+  bool usable;                  //线程是否被使用
   pthread_t tid;                //线程ID
 };
 
@@ -65,7 +65,7 @@ struct thread_record {
 struct deliever_para{
   struct tftp_request request;
   int thread_index;
-}
+};
 
 //全局变量
 int connect_counter = 0;       //全局变量：记录连接的客户端数目
