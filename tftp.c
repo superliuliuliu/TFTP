@@ -25,7 +25,7 @@ int send_packet(int sockfd, struct tftp_packet *packet, int size){
             return -1;
         }
         //停止等待 接收ack报文 收到ack报文说明 packet发送成功
-        for (time_wait_counter = 0; time_wait_counter < MAX_TIEM_WAIT; time_wait_counter += 10000){
+        for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT; time_wait_counter += 10000){
             r_size = recv(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT);
             /*
              * 判断是否是ACK报文，
@@ -37,7 +37,7 @@ int send_packet(int sockfd, struct tftp_packet *packet, int size){
             }
             usleep(10000);
         }
-        if (time_wait_counter < MAX_TIEM_WAIT){
+        if (time_wait_counter < MAX_TIME_WAIT){
             break;
         }
     }
@@ -303,7 +303,7 @@ void file_upload(struct tftp_request request, int sockfd){
          /*
           等待接收一个packet  根据上面规定一个报文最多重发3次 以及超时重传的相关规定
          */
-         for(time_wait_counter = 0; time_wait_counter < MAX_RETRANSMISSION * MAX_TIEM_WAIT ; time_wait_counter += 20000){
+         for(time_wait_counter = 0; time_wait_counter < MAX_RETRANSMISSION * MAX_TIME_WAIT ; time_wait_counter += 20000){
              recv_size = recv(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT);
              //DATA报文最小长度也要大于4字节
              if (recv_size > 0 && recv_size < 4){
@@ -321,7 +321,7 @@ void file_upload(struct tftp_request request, int sockfd){
              }
              usleep(20000);
          }
-         if (time_wait_counter >= MAX_TIEM_WAIT * MAX_RETRANSMISSION){
+         if (time_wait_counter >= MAX_TIME_WAIT * MAX_RETRANSMISSION){
              printf("接收DATA报文超时！\n");
              success = false;
              break;//跳出while循环

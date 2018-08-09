@@ -126,7 +126,7 @@ void get_file(char *server_file){
     unsigned short block = 1;//块号
 
     do{
-        for(time_wait_counter = 0; time_wait_counter < MAX_RETRANSMISSION * MAX_TIEM_WAIT; time_wait_counter += 10000){
+        for(time_wait_counter = 0; time_wait_counter < MAX_RETRANSMISSION * MAX_TIME_WAIT; time_wait_counter += 10000){
             recv_size = recvfrom(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT,
                                 (struct sockaddr *)&client,
                                 &addr_len);
@@ -145,7 +145,7 @@ void get_file(char *server_file){
             }
             usleep(10000);
         }
-        if (time_wait_counter >= MAX_TIEM_WAIT * MAX_RETRANSMISSION){
+        if (time_wait_counter >= MAX_TIME_WAIT * MAX_RETRANSMISSION){
             printf("接收DATA报文超时！\n");
             break;//跳出while循环
         }

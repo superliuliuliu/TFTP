@@ -25,7 +25,7 @@
 
 #define DATASIZE 512            // TFTP报文中的数据长度为512字节
 #define MAX_RETRANSMISSION 3    // 发送报文的最大重传次数，超过该次数则认为报文不能够发送
-#define MAX_TIEM_WAIT 1000*1000 // 等待ACK确认报文的最大时间为1秒
+#define MAX_TIME_WAIT 1000*1000 // 等待ACK确认报文的最大时间为1秒
 #define DEFAULT_PORT (unsigned short) 7341     //客户端的默认监听端口号
 #define MAX_PACKET_REQUEST 1024 //最大请求报文长度1024字节
 #define MAX_THREAD_SIZE 16      //最大子线程数，对应最大允许连接的客户端数
