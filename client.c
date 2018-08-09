@@ -20,7 +20,7 @@ int main(int argc, char **argv){
     printf("--------------------------------------------\n");
     printf("使用指南：\n");
     if (argc < 2){
-		    printf("\nUsage:  %s [server ip] [port]\n",argv[0]);
+		    printf("Usage:  %s [server ip] [port]\n",argv[0]);
 		    printf("服务器端的默认端口号为7341,,如果你已经设置请忽略！\n");
 		    return 0;
 	  }
@@ -134,8 +134,8 @@ void get_file(char *server_file){
                 printf("接收DATA报文出错！等待重传！\n");
             }
             if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_DATA)) && (recv_packet.block == htons(block))){
-                printf("正在接收第%d个文件块...\n", blcok);
-                write_size = fwrite(rcev_packet.data, 1, recv_size - 4, fp);
+                printf("正在接收第%d个文件块...\n", block);
+                write_size = fwrite(recv_packet.data, 1, recv_size - 4, fp);
                 if (write_size == recv_size - 4){
                     break;
                 }
