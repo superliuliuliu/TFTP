@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <stdbool.h>
+#include <unistd.h> 
 
 /*
 * TFTP报文中的操作码占两个字节  定义为short类型

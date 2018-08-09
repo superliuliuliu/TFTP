@@ -1,7 +1,5 @@
 #include "tftp.h"
 
-
-
 /**
  * send_packet 发送一个TFTP报文 支持DATA报文、请求报文
  * @param  sockfd socket所对应的文件描述符
