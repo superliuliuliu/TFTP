@@ -152,7 +152,7 @@ void file_download(struct tftp_request *request, int sockfd){
      由于TFTP报文一次最多传送512字节的文件内容,当文件大于512字节时需要多次传送,
      有争议
     */
-    if (blocksize <= 0|| blocksize > DATASIZE){
+    if (blocksize <= 0 || blocksize > DATASIZE){
         blocksize = DATASIZE;
     }
 
@@ -174,7 +174,7 @@ void file_download(struct tftp_request *request, int sockfd){
 	   }
 
      //开始封装发送数据报文
-     int content_size = 0;
+     int content_size = 0;//每次从文件中读取的数据数 最大512字节 当其不是512字节时表示文件传输完毕
      s_packet.optcode = htons(OPTCODE_DATA);
      unsigned short block = 1;
      do {
@@ -190,7 +190,7 @@ void file_download(struct tftp_request *request, int sockfd){
          printf("正在发送第%d个文件块...\n", block);
          block++;
 
-     } while(content_size == DATASIZE)
+     } while(content_size == DATASIZE);
      printf("文件发送完成！\n");
 
      // 记录服务器端操作到日志文件中
@@ -312,7 +312,7 @@ void file_upload(struct tftp_request *request, int sockfd){
              }
              if ((recv_size >= 4) && (recv_packet.optcode = htons(OPTCODE_DATA)) && (recv_packet.block == htons(block))){
                  printf("正在接收第%d个文件块...\n", blcok);
-                 write_size = fwrite(rcv_packet.data, 1, recv_size - 4, fp);
+                 write_size = fwrite(rcev_packet.data, 1, recv_size - 4, fp);
                  if (write_size == recv_size - 4){
                      break;
                  }
@@ -337,7 +337,8 @@ void file_upload(struct tftp_request *request, int sockfd){
              fclose(fp);
              return;
          }
-     }while(recv_size == DATASIZE + 4)
+         block++;
+     }while(recv_size == DATASIZE + 4);
 
      if (success == true){
         fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作成功！\n", connect_counter, filename, asctime(info));
