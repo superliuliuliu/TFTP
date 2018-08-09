@@ -66,7 +66,7 @@ int send_ack(int sockfd, struct tftp_packet *packet, int size){
  * @param  arg void*类型，即指向任何对象的指针都可以传递给它
  * @return void*与上面参数arg相似
  */
-static void *thread_func(void *arg){
+void *thread_func(void *arg){
     //struct tftp_request *request = (struct tftp_request *)arg;
     struct deliever_para *deliever = (struct deliever_para*)arg;
     int sockfd;
