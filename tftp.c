@@ -98,7 +98,7 @@ static void *thread_func(void *arg){
         return NULL;
     }
     //判断客户端发出的请求
-    switch(deliever->request.optcode){
+    switch(deliever->request.packet.optcode){
         case OPTCODE_RRQ:{
             printf("正在处理客户端：%d 的文件下载请求！",connect_counter);
             file_download(deliever->request, sockfd);
@@ -165,7 +165,7 @@ void file_download(struct tftp_request request, int sockfd){
 	   strcat(filepath, filename);
      printf("客户端:%d 请求下载文件：%s\n",connect_counter, filepath);
 
-     FILE *fp = fopen(fullpath, "rb");
+     FILE *fp = fopen(filepath, "rb");
 	   if (fp == NULL){
 		     printf("服务器端不存在您需要下载的文件，请检查文件名后重试！\n");
          // 发送错误报文？在客户端显示出错原因？  此处挖坑，后续补上
