@@ -25,12 +25,12 @@ int main(int argc, char **argv){
 		    return 0;
 	  }
     printf("你可以输入下列命令来使用本TFTP客户端:\n");
-	  printf("  -从服务器端下载文件:\n");
-	  printf("    get [remote_file]\n");
-	  printf("  -向服务器端上传文件:\n");
-	  printf("    put [local_file]\n");
-	  printf("  -退出客户端程序:\n");
-	  printf("    quit\n");
+	  printf("-从服务器端下载文件:\n");
+	  printf("get [remote_file]\n");
+	  printf("-向服务器端上传文件:\n");
+	  printf("put [local_file]\n");
+	  printf("-退出客户端程序:\n");
+	  printf("quit\n");
 
     server_ip = argv[1];
     if (argc > 2){
@@ -56,7 +56,7 @@ int main(int argc, char **argv){
     char *buffer;
     char *arg;//用来存储输入的命令
     while (true){
-        printf("<<");
+        printf(">>");
         memset(command, 0, MAX_BUFFER_SIZE);
         // 从输入流中读取数据到command数组中
         buffer = fgets(command, MAX_BUFFER_SIZE, stdin);
@@ -89,7 +89,7 @@ int main(int argc, char **argv){
             }
         }
         else if (strcmp(arg, "quit") == 0){
-            connect_counter--;//退出连接后  计数器-1
+            //connect_counter--;//退出连接后  计数器-1
             break;
         }
         else{
@@ -147,7 +147,7 @@ void get_file(char *server_file){
         }
         if (time_wait_counter >= MAX_TIME_WAIT * MAX_RETRANSMISSION){
             printf("接收DATA报文超时！\n");
-            break;//跳出while循环
+            return;//跳出while循环
         }
         //若未超时发送ack报文
         ack_packet.block = htons(block);

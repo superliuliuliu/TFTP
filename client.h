@@ -7,7 +7,7 @@
 //客户端接收输入命令的最大长度
 #define MAX_BUFFER_SIZE 1024
 
-extern int connect_counter;
+//extern int connect_counter;
 
 //客户端利用的主要函数声明
 void get_file(char *server_file);
