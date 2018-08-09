@@ -14,12 +14,12 @@ int main(int argc, char **argv){
     printf("欢迎使用TFTP服务器端！\n");
     printf("--------------------------------------------\n");
     printf("使用指南：\n");
-    printf("\nUsage:  %s [port]\n",argv[0]);
-    printf("可用端口号:1024-65535\n");
+    printf("Usage:  %s [port]  ", argv[0]);
+    printf("(可用端口号:1024-65535)\n");
     if (argc > 1){
         port = (unsigned short)atoi(argv[1]);
     }
-    printf("\n如果你未设置服务器端的端口号,端口号默认为7341。\n");
+    printf("如果你未设置服务器端的端口号,端口号默认为7341。\n");
     int sockfd;
 	  struct sockaddr_in server;
 
@@ -36,7 +36,7 @@ int main(int argc, char **argv){
         return -1;
     }
 
-    printf("服务器开始运行: localhost:%d.\n", port);
+    printf("服务器开始运行------localhost%d.\n", port);
 
     //用于线程创建函数中的参数传递  该参数包含请求报文与线程id来标志时哪一个线程
     struct deliever_para *deliever;
