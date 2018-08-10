@@ -72,7 +72,7 @@ void *thread_func(void *arg){
     int sockfd;
     int idx = deliever->thread_index;                      //使用的线程下标
     struct sockaddr_in server;
-    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALZER;                                  //互斥信号量给全局变量连接数加锁
+    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;                                  //互斥信号量给全局变量连接数加锁
     static socklen_t addr_len = sizeof(struct sockaddr_in);//this struct has a static length
 
     pthread_mutex_lock(&mtx);
