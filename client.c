@@ -171,9 +171,80 @@ void get_file(char *server_file){
  * @param local_file 要上传本地文件名
  */
 void put_file(char *local_file){
+    struct tftp_packet data_packet, sed_packet, recv_packet;
+    struct sockaddr_in client;
+    int time_wait_counter = 0;
+    int recv_size = 0;
+    //封装操作码类型
+    sed_packet.optcode = htons(OPTCODE_WRQ);
+    sprintf(sed_packet.filename, "%s%c%s%c%d%c", local_file, 0, "octet", 0, blocksize, 0);//将信息存储到packet中 以/-"filename"-"0"-"mode"-"0"-"blocksize"-"0"/
+    sendto(sockfd, &sed_packet, sizeof(struct tftp_packet), 0, (struct sockaddr*)&server, addr_len);//发送请求报文到服务器端
+    //等待服务器端发来的第一个ACK 用来响应客户端的请求
+    for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT * MAX_RETRANSMISSION; time_wait_counter += 20000){
+        recv_size = recvfrom(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT,
+                            (struct sockaddr *)&client,
+                            &addr_len);
 
+        if (recv_size > 0 && recv_size < 4){
+            printf("没有收到服务器端的响应报文，请等待重传！\n");
+        }
+        if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_ACK)) && (recv_packet.block == htons(0))){
+            printf("收到ACK 0！\n" );
+			      break;
+		    }
+        usleep(20000);
+    }
+    if (time_wait_counter >= MAX_TIME_WAIT * MAX_RETRANSMISSION){
+        printf("接收ACK响应报文超时！\n");
+        return;
+    }
 
+    //开始上传文件
+    FILE *fp = fopen(local_file, "r");
+	  if (fp == NULL){
+		    printf("您要上传的文件不存在，请检查文件名后重试！\n");
+		    return;
+	  }
 
+    unsigned short block = 1; //块号
+    data_packet.optcode = htons(OPTCODE_DATA);
+    int content_size = 0;
+    int send_times = 0;
+    do{
+        memset(data_packet.data, 0, sizeof(data_packet.data));
+        snd_packet.block = htons(block);
+        content_size = fread(data_packet.data, 1, blocksize, fp);   //从文件中读取数据到data_packet中
+        //发送一个数据包 超时重传机制
+        for (send_times = 0; send_times < MAX_RETRANSMISSION; send_times++){
+            sendto(sockfd, &data_packet, sizeof(struct tftp_packet), 0, (struct sockaddr*)&server, addr_len);
+            printf("正在上传第%d个文件块\n", block);
+            //等待ack报文 确认服务器端收到了
+            for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT; time_wait_counter += 20000 ){
+                recv_size = recvfrom(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT,
+                                    (struct sockaddr *)&client,
+                                    &addr_len);
+                if (recv_size > 0 && recv_size < 4){
+                    printf("没有收到服务器端的确认报文，请等待重传！\n");
+                }
+                if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_ACK)) && (recv_packet.block == htons(block))){
+                    break;
+                }
+                usleep(20000);
+            }
+            if (time_wait_counter < MAX_TIME_WAIT){
+                printf("收到第%d个文件块的ACK报文。\n",block);
+                break;
+            }
+        }
+        if (send_times >= MAX_RETRANSMISSION){
+            printf("第%d个文件块传送失败！\n",block);
+            fclose(fp);
+            return;
+        }
+        block++;
+    }while(recv_size == blocksize);
 
+    printf("%s文件上传成功！\n", local_file);
+    fclose(fp);
     return;
 }
