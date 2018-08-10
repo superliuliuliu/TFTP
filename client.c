@@ -89,7 +89,6 @@ int main(int argc, char **argv){
             }
         }
         else if (strcmp(arg, "quit") == 0){
-            //connect_counter--;//退出连接后  计数器-1
             break;
         }
         else{

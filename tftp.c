@@ -67,11 +67,10 @@ int send_ack(int sockfd, struct tftp_packet *packet, int size){
  * @return void*与上面参数arg相似
  */
 void *thread_func(void *arg){
-    //struct tftp_request *request = (struct tftp_request *)arg;
+
     struct deliever_para *deliever = (struct deliever_para*)arg;
     int sockfd;
-    //使用的线程下标
-    int inx = deliever->thread_index;
+    int idx = deliever->thread_index;//使用的线程下标
     struct sockaddr_in server;
     static socklen_t addr_len = sizeof(struct sockaddr_in);//this struct has a static length
     printf("新的客户端与TFTP服务器端建立连接，当前连接的客户端数:%d\n", ++connect_counter);//设置全局变量来记录连接的客户端数 后面实现
@@ -87,32 +86,34 @@ void *thread_func(void *arg){
     server.sin_port = 0;    //设置数据传输socket端口号
     // 数据传输socket绑定server地址
     if (bind(sockfd, (struct sockaddr *)&server, addr_len) < 0){
-        printf("数据传输socket绑定失败！");
+        printf("数据传输socket绑定失败！\n");
         return NULL;
     }
     // 与客户端建立连接
     if (connect(sockfd, (struct sockaddr *)&(deliever->request.client), addr_len) < 0){
-        printf("连接到客户端失败！");
+        printf("连接到客户端失败！\n");
         return NULL;
     }
     //判断客户端发出的请求
     switch(deliever->request.packet.optcode){
         case OPTCODE_RRQ:{
-            printf("正在处理客户端：%d 的文件下载请求！",connect_counter);
+            printf("正在处理客户端：%d 的文件下载请求！\n",connect_counter);
             file_download(deliever->request, sockfd);
+            customer[idx].usable = true;
             break;
         }
         case OPTCODE_WRQ:{
-            printf("正在处理客户端：%d 的文件上传请求！",connect_counter);
+            printf("正在处理客户端：%d 的文件上传请求！\n",connect_counter);
             //此处应该有一个处理上传文件的函数
             file_upload(deliever->request, sockfd);
+            customer[idx].usable = true;
             break;
         }
         /*case OPTCODE_END:{
 
         }*/
         default:{
-            printf("错误的指令，请检查后重试！");
+            printf("错误的操作码\n！");
             break;
         }
     }
