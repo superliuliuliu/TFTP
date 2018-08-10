@@ -185,7 +185,7 @@ void file_download(struct tftp_request request, int sockfd){
              success = false;
              break;
          }
-         printf("正在发送第%d个文件块...\n", block);
+         printf("发送第%d个文件块成功\n", block);
          block++;
 
      } while(content_size == DATASIZE);
@@ -201,10 +201,10 @@ void file_download(struct tftp_request request, int sockfd){
      info = localtime(&rawtime);
 
      if (success == true){
-        fprintf(fp_log, "客户端:%d   下载文件:%s   时间:%s  操作成功！\n", connect_counter, filename, asctime(info));
+        fprintf(fp_log, "客户端:%d 下载文件:%s 时间:%s操作成功！\n", connect_counter, filename, asctime(info));
      }
      else{
-        fprintf(fp_log, "客户端:%d   下载文件:%s   时间:%s  操作失败:服务器发送文件块失败！\n", connect_counter, filename, asctime(info));
+        fprintf(fp_log, "客户端:%d 下载文件:%s 时间:%s操作失败:服务器发送文件块失败！\n", connect_counter, filename, asctime(info));
      }
      //关闭文件
      fclose(fp);
@@ -265,7 +265,7 @@ void file_upload(struct tftp_request request, int sockfd){
 	   if (fp != NULL){
 		     fclose(fp);
 		     printf("文件 %s 已经存在.\n", filepath);
-         fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败:服务器端已存在文件！\n", connect_counter, filename, asctime(info));
+         fprintf(fp_log, "客户端:%d 上传文件:%s 时间:%s 操作失败:服务器端已存在文件！\n", connect_counter, filename, asctime(info));
          fclose(fp_log);
          return;
 	   }
@@ -274,7 +274,7 @@ void file_upload(struct tftp_request request, int sockfd){
      if (fp == NULL){
          printf("文件创建失败！");
          fclose(fp);
-         fprintf(fp_log, "客户端:%d   上传文件:%s   时间:%s  操作失败：服务器端创建文件失败！\n", connect_counter, filename, asctime(info));
+         fprintf(fp_log, "客户端:%d 上传文件:%s 时间:%s 操作失败：服务器端创建文件失败！\n", connect_counter, filename, asctime(info));
          fclose(fp_log);
          return;
      }
