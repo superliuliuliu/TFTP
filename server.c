@@ -66,7 +66,7 @@ int main(int argc, char **argv){
          * 若线程数组中的线程均不可用，表示服务器端连接的客户端数达到了饱和，则不进行工作
          */
         int idx;
-        voif *res;
+        void *res;
         for (idx = 0; idx < MAX_THREAD_SIZE; idx++){
             if (customer[idx].usable == true) {
                 customer[idx].usable = false;
