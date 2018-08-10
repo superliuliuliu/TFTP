@@ -189,7 +189,7 @@ void put_file(char *local_file){
             printf("没有收到服务器端的响应报文，请等待重传！\n");
         }
         if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_ACK)) && (recv_packet.block == htons(0))){
-            printf("收到ACK 0！\n" );
+            printf("收到ACK 0\n" );
 			      break;
 		    }
         usleep(20000);
@@ -212,7 +212,7 @@ void put_file(char *local_file){
     int send_times = 0;
     do{
         memset(data_packet.data, 0, sizeof(data_packet.data));
-        sed_packet.block = htons(block);
+        data_packet.block = htons(block);
         content_size = fread(data_packet.data, 1, blocksize, fp);   //从文件中读取数据到data_packet中
         //发送一个数据包 超时重传机制
         for (send_times = 0; send_times < MAX_RETRANSMISSION; send_times++){
