@@ -70,10 +70,14 @@ void *thread_func(void *arg){
 
     struct deliever_para *deliever = (struct deliever_para*)arg;
     int sockfd;
-    int idx = deliever->thread_index;//使用的线程下标
+    int idx = deliever->thread_index;                      //使用的线程下标
     struct sockaddr_in server;
+    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALZER;                                  //互斥信号量给全局变量连接数加锁
     static socklen_t addr_len = sizeof(struct sockaddr_in);//this struct has a static length
-    printf("新的客户端与TFTP服务器端建立连接，当前连接的客户端数:%d\n", ++connect_counter);//设置全局变量来记录连接的客户端数 后面实现
+
+    pthread_mutex_lock(&mtx);
+    connect_counter++;
+    printf("新的客户端与TFTP服务器端建立连接，当前连接的客户端数:%d\n", connect_counter);//设置全局变量来记录连接的客户端数 后面实现
     /*
     * 创建一个数据传输socket
     */
@@ -100,6 +104,8 @@ void *thread_func(void *arg){
             printf("正在处理客户端：%d 的文件下载请求！\n",connect_counter);
             file_download(deliever->request, sockfd);
             customer[idx].usable = true;
+            connect_counter--;
+            pthread_mutex_unlock(&mtx);
             break;
         }
         case OPTCODE_WRQ:{
@@ -107,6 +113,8 @@ void *thread_func(void *arg){
             //此处应该有一个处理上传文件的函数
             file_upload(deliever->request, sockfd);
             customer[idx].usable = true;
+            connect_counter--;
+            pthread_mutex_unlock(&mtx);
             break;
         }
         /*case OPTCODE_END:{
@@ -114,6 +122,9 @@ void *thread_func(void *arg){
         }*/
         default:{
             printf("错误的操作码\n！");
+            customer[idx].usable = true;
+            connect_counter--;
+            pthread_mutex_unlock(&mtx);
             break;
         }
     }
