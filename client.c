@@ -175,13 +175,13 @@ void put_file(char *local_file){
     struct sockaddr_in client;
     int time_wait_counter = 0;
     int recv_size = 0;
-    //封装操作码类型
+    //客户端在上传文件时发送的第一个包为 WRQ报文，用来发出上传文件请求 后续发出的报文为DATA报文
     send_packet.optcode = htons(OPTCODE_WRQ);
 
     sprintf(send_packet.filename, "%s%c%s%c%d%c", local_file, 0, "octet", 0, blocksize, 0);//将信息存储到packet中 以/-"filename"-"0"-"mode"-"0"-"blocksize"-"0"/
     sendto(sockfd, &send_packet, sizeof(struct tftp_packet), 0, (struct sockaddr*)&server, addr_len);//发送请求报文到服务器端
     //等待服务器端发来的第一个ACK 用来响应客户端的请求
-    for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT * MAX_RETRANSMISSION; time_wait_counter += 20000){
+    for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT; time_wait_counter += 20000){
         recv_size = recvfrom(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT,
                             (struct sockaddr *)&client,
                             &addr_len);
@@ -190,28 +190,33 @@ void put_file(char *local_file){
             printf("没有收到服务器端的响应报文，请等待重传！\n");
         }
         if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_ACK)) && (recv_packet.block == htons(0))){
-            printf("收到ACK 0\n" );
-			      break;
+            printf("收到服务服务器端发来的对应客户端上传请求的ACK报文！\n");
+            break;
 		    }
         usleep(20000);
     }
-    if (time_wait_counter >= MAX_TIME_WAIT * MAX_RETRANSMISSION){
-        printf("接收ACK响应报文超时！\n");
+    if (time_wait_counter >= MAX_TIME_WAIT){
+        printf("接收请求的ACK报文超时！\n");
         return;
     }
 
-    //开始上传文件
-    FILE *fp = fopen(local_file, "r");
+    /*
+     *开始上传文件
+     *模式r对应的读取本地文件数据
+     */
+    FILE *fp = fopen(local_file, "rb");
 	  if (fp == NULL){
 		    printf("您要上传的文件不存在，请检查文件名后重试！\n");
 		    return;
 	  }
 
     unsigned short block = 1; //块号
+    // send_packet后续用来发送DATA包，所以需要覆盖操作码类型
     send_packet.optcode = htons(OPTCODE_DATA);
     int content_size = 0;
     int send_times = 0;
     do{
+        //将原来存储的数据清空，防止传输数据出现错误
         memset(send_packet.data, 0, sizeof(send_packet.data));
         send_packet.block = htons(block);
         content_size = fread(send_packet.data, 1, blocksize, fp);   //从文件中读取数据到data_packet中
@@ -243,7 +248,7 @@ void put_file(char *local_file){
             return;
         }
         block++;
-    }while(recv_size == blocksize);
+    }while(content_size == blocksize);
 
     printf("%s文件上传成功！\n", local_file);
     fclose(fp);
