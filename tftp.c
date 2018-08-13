@@ -410,11 +410,81 @@ void file_upload(struct tftp_request request, int sockfd)
 
 }
 /**
- * get_list   功能：读取服务器目录文件，将服务器上包含的文件封装成报文发送个客户端让其显示出来
+ * get_list   功能：服务器端操作，读取目录文件，将服务器上包含的文件名、属性封装成报文发送个客户端让其显示出来 暂时缺少停止等待功能？
  * @param request 请求报文
  * @param sockfd  文件描述符
  */
 void get_list(struct tftp_request request, int sockfd)
 {
+    char filepath[256];
+    char data[DIR_CONTENT_SIZE];
+    struct tftp_packet file_packet;    //将文件信息封装到file_packet中
+    int data_size = 0;                 //文件名等数据的大小
 
+    //定义文件相关的结构体
+    struct stat stat_buf;             //用来存储文件的状态
+	  struct dirent *dirent;
+	  DIR *dp;                          //指向DIR结构体的指针，opendir()函数返回的值类型
+    char *ptr = filepath + strlen(filepath);//指向文件名的相关信息，用来拼接
+
+    //定义发包所用变量
+    unsigned short block = 1;
+
+
+    //当前目录为filepath = “.”
+    memset(filepath, 0, sizeof(filepath));
+	  strcpy(filepath, list);
+
+    stat(filepath, &stat_buf);
+    dp = opendir(filepath);//记得close否则内存泄漏
+    dirent = readdir(dp);
+    //依次遍历“.”目录下的文件
+    while (dirent != NULL)
+    {
+        //跳过“.”和".."文件
+       if(strcmp(dirent->d_name, ".") == 0 || strcmp(dirent->d_name, "..") == 0)
+       {
+           continue;
+       }
+       ptr[0] = '/';
+       strcpy(ptr + 1, dirent->d_name);
+       *(ptr + 1 + strlen(dirent->d_name)) = '\0';
+		   stat(filepath, &stat_buf);
+       //即判断目录下的文件是否为文件夹  'd'表示是文件夹形式，'f'表示文件
+       char mod = S_ISDIR(stat_buf.st_mode)? 'd' : 'f';
+
+       //接下来将文件类型、文件名、按照一定的格式依次写入到数据数组中  data_size 为写入的字节数
+       data_size += sprintf(data + data_size, "%c\t%d\t%s\t\n", mod, (int)stat_buf.st_size, dirent->name);
+       //检查data是否溢出
+       if (data_size >= DIR_CONTENT_SIZE)
+       {
+           printf("当前目录下文件数太多！数据溢出。\n");
+           closedir(dp);
+           return;
+       }
+    }
+
+    //开始发包 根据data_size的大小来确定发几次
+    file_packet.optcode = OPTCODE_DATA;
+    for (block = 1; block < data_size/DATASIZE + 1; block++)
+    {
+        memcpy(file_packet.data, data + (block-1) * DATASIZE, DATASIZE);
+        file_packet.block = htons(block);
+        if(send_packet(sockfd, &file_packet, DATA_SIZE + 4) == -1)
+        {
+			      printf("发送第 %d个文件块时出错！\n.", block);
+			      return;
+		    }
+		    usleep(10000);
+	  }
+    //发送最后一个数据块
+    file_packet.block = htons(block);
+    memcpy(file_packet.data, data + DATASIZE * (block - 1), data_size - DATASIZE * (block - 1));
+	  if(send_packet(sockfd, &file_packet, data_size - DATASIZE * (block - 1) + 4) == -1)
+    {
+		    printf("发送最后一个文件块时出错！\n");
+		    return;
+	  }
+    printf("目录信息发送完成！\n");
+    return;
 }

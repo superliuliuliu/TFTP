@@ -297,7 +297,59 @@ void put_file(char *local_file)
     return;
 }
 
+/**
+ * do_list  用来接收并解析服务器端对list请求发回来的数据包
+ */
 void do_list()
 {
+    struct tftp_packet send_packet, ack_packet, recv_packet; //用来接收数据和发送ACK数据
+    struct sockaddr_in client;
+    int time_wait_counter = 0;
+    int recv_size = 0;
+    unsigned short block = 1;
 
+    ack_packet.optcode = htons(OPTCODE_ACK);
+    send_packet.optcode = htons(OPTCODE_LIST);
+    //只发送一个操作码即可
+    sendto(sockfd, &send_packet, sizeof(struct tftpx_packet), 0, (struct sockaddr*)&server, addr_len);
+
+    printf("文件类型\t大小\t文件名\n");
+
+    //开始接收数据并发送ack报文
+    do
+    {
+        for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT * MAX_RETRANSMISSION; time_wait_counter += 20000)
+        {
+            recv_size = recv_size = recvfrom(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT,
+                                (struct sockaddr *)&client,
+                                &addr_len);
+            if (recv_size > 0 && recv_size < 4)
+            {
+                printf("接收DATA报文出错！等待重传！\n");
+            }
+            if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_DATA)) && (recv_packet.block == htons(block)))
+            {
+                //data 报文的话将数据写到显示屏上
+                fwrite(recv_packet.data, 1, recv_size - 4, stdout);
+                break;
+            }
+            usleep(20000);
+        }
+        if (time_wait_counter >= MAX_TIME_WAIT * MAX_RETRANSMISSION)
+        {
+            printf("接收DATA报文超时！\n");
+            return;//跳出while循环
+        }
+        //若未超时发送ack报文
+        ack_packet.block = htons(block);
+        ack_packet.optcode = htons(OPTCODE_ACK);
+        sendto(sockfd, &ack_packet, sizeof(struct tftp_packet), 0, (struct sockaddr*)&client, addr_len);
+        /*if (send_ack(sockfd, &ack_packet, 4) == -1){
+            fprintf(stderr, "客户端发送ACK失败.\n");
+            fclose(fp);
+            return;
+        }*/
+        block++
+    }while(recv_size == blocksize + 4);
+    return;
 }

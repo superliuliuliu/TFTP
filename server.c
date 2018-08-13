@@ -71,14 +71,14 @@ int main(int argc, char **argv)
          * 找到一个可用线程后对其进行修改、记录并跳出遍历
          * 若线程数组中的线程均不可用，表示服务器端连接的客户端数达到了饱和，则不进行工作
          */
-        int idx;
+        int thread_idx;
         void *res;
-        for (idx = 0; idx < MAX_THREAD_SIZE; idx++)
+        for (thread_idx = 0; thread_idx < MAX_THREAD_SIZE; thread_idx++)
         {
-            if (customer[idx].usable == true)
+            if (customer[thread_idx].usable == true)
             {
-                customer[idx].usable = false;
-                deliever->thread_index = idx;//将可用线程下标记录下来，传递到线程start函数中，便于在结束任务后终结线程
+                customer[thread_idx].usable = false;
+                deliever->thread_index = thread_idx;//将可用线程下标记录下来，传递到线程start函数中，便于在结束任务后终结线程
                 break;
             }
             else
@@ -89,9 +89,9 @@ int main(int argc, char **argv)
         if (enough == true)
         {
             //创建线程
-            pthread_create(&customer[idx].tid, NULL, thread_func, deliever);
+            pthread_create(&customer[thread_idx].tid, NULL, thread_func, deliever);
             //连接已终止的线程
-            pthread_join(customer[idx].tid, &res);
+            pthread_join(customer[thread_idx].tid, &res);
         }
         else
         {
