@@ -21,14 +21,17 @@ int main(int argc, char **argv){
     printf("使用指南：\n");
     if (argc < 2){
 		    printf("Usage:  %s [server ip] [port]\n",argv[0]);
-		    printf("服务器端的默认端口号为7341,,如果你已经设置请忽略！\n");
+		    printf("服务器端的默认端口号为7341,如果你已经设置请忽略！\n");
 		    return 0;
 	  }
     printf("你可以输入下列命令来使用本TFTP客户端:\n");
+    printf("请注意!本程序暂时只支持上传下载100M以下大小的文件\n");
 	  printf("-从服务器端下载文件:\n");
 	  printf("get [remote_file]\n");
 	  printf("-向服务器端上传文件:\n");
 	  printf("put [local_file]\n");
+    printf("-获取服务器端的文件目录\n");
+    printf("list\n");
 	  printf("-退出客户端程序:\n");
 	  printf("quit\n");
 
@@ -87,6 +90,9 @@ int main(int argc, char **argv){
             }else{
                 put_file(arg);
             }
+        }
+        else if (strcmp(arg, "list") == 0){
+            do_list();
         }
         else if (strcmp(arg, "quit") == 0){
             break;
@@ -253,4 +259,8 @@ void put_file(char *local_file){
     printf("%s文件上传成功！\n", local_file);
     fclose(fp);
     return;
+}
+
+void do_list(){
+
 }

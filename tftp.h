@@ -26,6 +26,7 @@
 #define OPTCODE_DATA (unsigned short)3
 #define OPTCODE_ACK (unsigned short)4
 #define OPTCODE_ERROR (unsigned short)5
+#define OPTCODE_LIST (unsigned short)6
 
 
 #define DATASIZE 512            // TFTP报文中的数据长度为512字节
@@ -84,6 +85,7 @@ int send_ack(int sockfd, struct tftp_packet *packet, int size);
 void *thread_func(void *arg);
 void file_download(struct tftp_request request, int sockfd);
 void file_upload(struct tftp_request request, int sockfd);
+void get_list(struct tftp_request request, int sockfd);
 
 
 #endif

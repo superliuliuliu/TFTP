@@ -117,9 +117,15 @@ void *thread_func(void *arg){
             pthread_mutex_unlock(&mtx);
             break;
         }
-        /*case OPTCODE_END:{
+        case OPTCODE_LIST:{
+            printf("正在获取服务器端的文件目录\n");
 
-        }*/
+            //获取文件目录处理函数
+            customer[idx].usable = true;
+            connect_counter--;
+            pthread_mutex_unlock(&mtx);
+            break;
+        }
         default:{
             printf("错误的操作码\n！");
             customer[idx].usable = true;
@@ -360,5 +366,14 @@ void file_upload(struct tftp_request request, int sockfd){
      fclose(fp);
      fclose(fp_log);
      return;
+
+}
+/**
+ * get_list   功能：读取服务器目录文件，将服务器上包含的文件封装成报文发送个客户端让其显示出来
+ * @param request 请求报文
+ * @param sockfd  文件描述符
+ */
+void get_list(struct tftp_request request, int sockfd){
+
 
 }

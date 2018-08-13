@@ -5,8 +5,8 @@ int connect_counter = 0;       //全局变量：记录连接的客户端数目
 char *list = ".";              //目录变量  初始化为当前目录"."
 struct thread_record customer[MAX_THREAD_SIZE];   //子线程数组
 /*
- *服务器端运行主函数
- * 主进程：一直运行的进程   创建一个监听socket
+ * 服务器端运行主函数
+ *
  *
  */
 int main(int argc, char **argv){
@@ -50,7 +50,7 @@ int main(int argc, char **argv){
     }
     //监听进程一直在运行
     while(true){
-        printf("当前与服务器端建立连接的客户端数为:%d\n", connect_counter);
+        printf("当前与服务器端建立的连接数为:%d\n", connect_counter);
         // 指向结构体的指针需要用malloc分配内存
         deliever = (struct deliever_para *)malloc(sizeof(struct deliever_para));
         memset(deliever, 0, sizeof(struct deliever_para));

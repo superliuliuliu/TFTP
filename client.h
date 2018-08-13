@@ -11,5 +11,6 @@
 //客户端利用的主要函数声明
 void get_file(char *server_file);
 void put_file(char *local_file);
+void do_list();
 
 #endif
