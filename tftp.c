@@ -437,10 +437,9 @@ void get_list(struct tftp_request request, int sockfd)
 
     stat(filepath, &stat_buf);
     dp = opendir(filepath);//记得close否则内存泄漏
-    dirent = readdir(dp);
     printf("断点1\n");
     //依次遍历“.”目录下的文件
-    while (dirent != NULL)
+    while ((dirent = readdir(dp)) != NULL)
     {
         //跳过“.”和".."文件
        if(strcmp(dirent->d_name, ".") == 0 || strcmp(dirent->d_name, "..") == 0)
