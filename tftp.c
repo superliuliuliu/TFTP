@@ -466,6 +466,7 @@ void get_list(struct tftp_request request, int sockfd)
 
     //开始发包 根据data_size的大小来确定发几次
     file_packet.optcode = OPTCODE_DATA;
+    printf("1\n");
     for (block = 1; block < data_size/DATASIZE + 1; block++)
     {
         memcpy(file_packet.data, data + (block-1) * DATASIZE, DATASIZE);
@@ -475,8 +476,8 @@ void get_list(struct tftp_request request, int sockfd)
 			      printf("发送第 %d个文件块时出错！\n.", block);
 			      return;
 		    }
-		    usleep(10000);
 	  }
+    printf("2\n");
     //发送最后一个数据块
     file_packet.block = htons(block);
     memcpy(file_packet.data, data + DATASIZE * (block - 1), data_size - DATASIZE * (block - 1));
