@@ -319,7 +319,7 @@ void do_list()
     {
         for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT * MAX_RETRANSMISSION; time_wait_counter += 20000)
         {
-            recv_size = recv_size = recvfrom(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT,
+            recv_size = recvfrom(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT,
                                 (struct sockaddr *)&client,
                                 &addr_len);
             if (recv_size > 0 && recv_size < 4)
@@ -341,13 +341,7 @@ void do_list()
         }
         //若未超时发送ack报文
         ack_packet.block = htons(block);
-        ack_packet.optcode = htons(OPTCODE_ACK);
         sendto(sockfd, &ack_packet, sizeof(struct tftp_packet), 0, (struct sockaddr*)&client, addr_len);
-        /*if (send_ack(sockfd, &ack_packet, 4) == -1){
-            fprintf(stderr, "客户端发送ACK失败.\n");
-            fclose(fp);
-            return;
-        }*/
         block++;
     }while(recv_size == blocksize + 4);
     return;

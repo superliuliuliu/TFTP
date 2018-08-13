@@ -463,9 +463,10 @@ void get_list(struct tftp_request request, int sockfd)
            return;
        }
     }
+    closedir(dp);
 
     //开始发包 根据data_size的大小来确定发几次
-    file_packet.optcode = OPTCODE_DATA;
+    file_packet.optcode = htons(OPTCODE_DATA);
     printf("1\n");
     for (block = 1; block < data_size/DATASIZE + 1; block++)
     {
