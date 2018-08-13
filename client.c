@@ -311,8 +311,7 @@ void do_list()
     ack_packet.optcode = htons(OPTCODE_ACK);
     send_packet.optcode = htons(OPTCODE_LIST);
     //只发送一个操作码即可
-    sendto(sockfd, &send_packet, sizeof(struct tftpx_packet), 0, (struct sockaddr*)&server, addr_len);
-
+    sendto(sockfd, &send_packet, sizeof(struct tftp_packet), 0, (struct sockaddr*)&server, addr_len);
     printf("文件类型\t大小\t文件名\n");
 
     //开始接收数据并发送ack报文
@@ -349,7 +348,7 @@ void do_list()
             fclose(fp);
             return;
         }*/
-        block++
+        block++;
     }while(recv_size == blocksize + 4);
     return;
 }
