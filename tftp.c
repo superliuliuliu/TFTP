@@ -454,7 +454,7 @@ void get_list(struct tftp_request request, int sockfd)
        char mod = S_ISDIR(stat_buf.st_mode)? 'd' : 'f';
 
        //接下来将文件类型、文件名、按照一定的格式依次写入到数据数组中  data_size 为写入的字节数
-       data_size += sprintf(data + data_size, "%c\t%d\t%s\t\n", mod, (int)stat_buf.st_size, dirent->name);
+       data_size += sprintf(data + data_size, "%c\t%d\t%s\t\n", mod, (int)stat_buf.st_size, dirent->d_name);
        //检查data是否溢出
        if (data_size >= DIR_CONTENT_SIZE)
        {
@@ -470,7 +470,7 @@ void get_list(struct tftp_request request, int sockfd)
     {
         memcpy(file_packet.data, data + (block-1) * DATASIZE, DATASIZE);
         file_packet.block = htons(block);
-        if(send_packet(sockfd, &file_packet, DATA_SIZE + 4) == -1)
+        if(send_packet(sockfd, &file_packet, DATASIZE + 4) == -1)
         {
 			      printf("发送第 %d个文件块时出错！\n.", block);
 			      return;
