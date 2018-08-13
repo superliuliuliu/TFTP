@@ -136,7 +136,7 @@ void *thread_func(void *arg)
         case OPTCODE_LIST:
         {
             printf("正在获取服务器端的文件目录\n");
-
+            get_list(deliever->request, sockfd);
             //获取文件目录处理函数
             customer[idx].usable = true;
             connect_counter--;
