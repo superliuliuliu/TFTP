@@ -438,6 +438,7 @@ void get_list(struct tftp_request request, int sockfd)
     stat(filepath, &stat_buf);
     dp = opendir(filepath);//记得close否则内存泄漏
     dirent = readdir(dp);
+    printf("断点1\n");
     //依次遍历“.”目录下的文件
     while (dirent != NULL)
     {
@@ -467,7 +468,7 @@ void get_list(struct tftp_request request, int sockfd)
 
     //开始发包 根据data_size的大小来确定发几次
     file_packet.optcode = htons(OPTCODE_DATA);
-    printf("1\n");
+
     for (block = 1; block < data_size/DATASIZE + 1; block++)
     {
         memcpy(file_packet.data, data + (block-1) * DATASIZE, DATASIZE);
