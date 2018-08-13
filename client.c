@@ -10,7 +10,8 @@ int blocksize = DATASIZE;
 /*
  * 客户端运行主程序
  */
-int main(int argc, char **argv){
+int main(int argc, char **argv)
+{
     char command[MAX_BUFFER_SIZE];         // 用来存储客户端输入的命令请求
     char *server_ip;                       // 用来存储用户输入的命令行参数
     unsigned short port = DEFAULT_PORT;    //
@@ -36,13 +37,15 @@ int main(int argc, char **argv){
 	  printf("quit\n");
 
     server_ip = argv[1];
-    if (argc > 2){
+    if (argc > 2)
+    {
         port = (unsigned short)atoi(argv[2]);
     }
     printf("本客户端已连接到位于%s ：%d的TFTP服务器端\n",server_ip, port);
 
     //创建数据连接socket
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0){
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+    {
 		    printf("客户端数据传输socket创建失败.\n");
 		    return 0;
 	  }
@@ -51,53 +54,66 @@ int main(int argc, char **argv){
 	  server.sin_family = AF_INET;
 	  server.sin_port = htons(port);
     //将字符形式的ip地址转换为网络字节序形式并存储到server中
-    if (inet_pton(AF_INET, server_ip, &(server.sin_addr.s_addr)) != 1){
+    if (inet_pton(AF_INET, server_ip, &(server.sin_addr.s_addr)) != 1)
+    {
         printf("服务器端地址信息设置出错！");
         return 0;
     }
     //开始处理用户输入的命令行
     char *buffer;
     char *arg;//用来存储输入的命令
-    while (true){
+    while (true)
+    {
         printf(">>");
         memset(command, 0, MAX_BUFFER_SIZE);
         // 从输入流中读取数据到command数组中
         buffer = fgets(command, MAX_BUFFER_SIZE, stdin);
-        if (buffer == NULL){
+        if (buffer == NULL)
+        {
             printf("读取命令失败！\n");
             return 0;
         }
         //利用strtok()切割输入的命令  获取具体的命令
         arg = strtok(buffer, " \t\n");
-        if (arg == NULL){
+        if (arg == NULL)
+        {
           continue;//结束本次while循环进行下一个while循环，而不是跳出while循环
         }
         // 进一步判断输入的命令是哪一个
-        if (strcmp(arg, "get") == 0){
+        if (strcmp(arg, "get") == 0)
+        {
 
             arg = strtok(NULL, " \t\n");
-            if (arg == NULL){
+            if (arg == NULL)
+            {
                 printf("缺少文件名\n");
-            }else{
+            }else
+            {
                 get_file(arg);
             }
         }
-        else if (strcmp(arg, "put") == 0){
+        else if (strcmp(arg, "put") == 0)
+        {
 
             arg = strtok(NULL, " \t\n");
-            if (arg == NULL){
+            if (arg == NULL)
+            {
                 printf("缺少文件名\n");
-            }else{
+            }else
+            {
                 put_file(arg);
             }
         }
-        else if (strcmp(arg, "list") == 0){
+        else if (strcmp(arg, "list") == 0)
+        {
             do_list();
         }
-        else if (strcmp(arg, "quit") == 0){
+        else if (strcmp(arg, "quit") == 0)
+        {
             break;
         }
-        else{
+        else
+        {
             printf("未知的命令，请检查后重新输入！");
         }
     }
@@ -109,7 +125,8 @@ int main(int argc, char **argv){
  * 客户端会发送一个请求报文与多个ACK报文
  * @param server_file 要下载远端文件的文件名
  */
-void get_file(char *server_file){
+void get_file(char *server_file)
+{
     struct tftp_packet ack_packet, sed_packet, recv_packet;//sed_packet用来发送请求
     struct sockaddr_in client;
 
@@ -119,7 +136,8 @@ void get_file(char *server_file){
     sendto(sockfd, &sed_packet, sizeof(struct tftp_packet), 0, (struct sockaddr*)&server, addr_len);//发送这个报文到服务器端
 
     FILE *fp = fopen(server_file, "w");
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
         printf("本地文件：%s创建失败\n", server_file);
         return;
     }
@@ -131,26 +149,32 @@ void get_file(char *server_file){
     unsigned short block = 1;//块号
 
     do{
-        for(time_wait_counter = 0; time_wait_counter < MAX_RETRANSMISSION * MAX_TIME_WAIT; time_wait_counter += 10000){
+        for(time_wait_counter = 0; time_wait_counter < MAX_RETRANSMISSION * MAX_TIME_WAIT; time_wait_counter += 10000)
+        {
             recv_size = recvfrom(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT,
                                 (struct sockaddr *)&client,
                                 &addr_len);
-            if (recv_size > 0 && recv_size < 4){
+            if (recv_size > 0 && recv_size < 4)
+            {
                 printf("接收DATA报文出错！等待重传！\n");
             }
-            if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_DATA)) && (recv_packet.block == htons(block))){
+            if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_DATA)) && (recv_packet.block == htons(block)))
+            {
                 printf("正在接收第%d个文件块...\n", block);
                 write_size = fwrite(recv_packet.data, 1, recv_size - 4, fp);
-                if (write_size == recv_size - 4){
+                if (write_size == recv_size - 4)
+                {
                     break;
                 }
-                else{
+                else
+                {
                     printf("数据写入文件失败，等待报文重传！\n");
                 }
             }
             usleep(10000);
         }
-        if (time_wait_counter >= MAX_TIME_WAIT * MAX_RETRANSMISSION){
+        if (time_wait_counter >= MAX_TIME_WAIT * MAX_RETRANSMISSION)
+        {
             printf("接收DATA报文超时！\n");
             return;//跳出while循环
         }
@@ -176,7 +200,8 @@ void get_file(char *server_file){
  * 客户端会发送一个请求报文和多个DATA报文
  * @param local_file 要上传本地文件名
  */
-void put_file(char *local_file){
+void put_file(char *local_file)
+{
     struct tftp_packet  send_packet, recv_packet;
     struct sockaddr_in client;
     int time_wait_counter = 0;
@@ -187,21 +212,25 @@ void put_file(char *local_file){
     sprintf(send_packet.filename, "%s%c%s%c%d%c", local_file, 0, "octet", 0, blocksize, 0);//将信息存储到packet中 以/-"filename"-"0"-"mode"-"0"-"blocksize"-"0"/
     sendto(sockfd, &send_packet, sizeof(struct tftp_packet), 0, (struct sockaddr*)&server, addr_len);//发送请求报文到服务器端
     //等待服务器端发来的第一个ACK 用来响应客户端的请求
-    for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT; time_wait_counter += 20000){
+    for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT; time_wait_counter += 20000)
+    {
         recv_size = recvfrom(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT,
                             (struct sockaddr *)&client,
                             &addr_len);
 
-        if (recv_size > 0 && recv_size < 4){
+        if (recv_size > 0 && recv_size < 4)
+        {
             printf("没有收到服务器端的响应报文，请等待重传！\n");
         }
-        if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_ACK)) && (recv_packet.block == htons(0))){
+        if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_ACK)) && (recv_packet.block == htons(0)))
+        {
             printf("收到服务服务器端发来的对应客户端上传请求的ACK报文！\n");
             break;
 		    }
         usleep(20000);
     }
-    if (time_wait_counter >= MAX_TIME_WAIT){
+    if (time_wait_counter >= MAX_TIME_WAIT)
+    {
         printf("接收请求的ACK报文超时！\n");
         return;
     }
@@ -211,7 +240,8 @@ void put_file(char *local_file){
      *模式r对应的读取本地文件数据
      */
     FILE *fp = fopen(local_file, "rb");
-	  if (fp == NULL){
+	  if (fp == NULL)
+    {
 		    printf("您要上传的文件不存在，请检查文件名后重试！\n");
 		    return;
 	  }
@@ -227,28 +257,34 @@ void put_file(char *local_file){
         send_packet.block = htons(block);
         content_size = fread(send_packet.data, 1, blocksize, fp);   //从文件中读取数据到data_packet中
         //发送一个数据包 超时重传机制
-        for (send_times = 0; send_times < MAX_RETRANSMISSION; send_times++){
+        for (send_times = 0; send_times < MAX_RETRANSMISSION; send_times++)
+        {
             sendto(sockfd, &send_packet, content_size + 4, 0, (struct sockaddr*)&client, addr_len);
             printf("正在上传第%d个文件块\n", block);
             //等待ack报文 确认服务器端收到了
-            for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT; time_wait_counter += 20000 ){
+            for (time_wait_counter = 0; time_wait_counter < MAX_TIME_WAIT; time_wait_counter += 20000 )
+            {
                 recv_size = recvfrom(sockfd, &recv_packet, sizeof(struct tftp_packet), MSG_DONTWAIT,
                                     (struct sockaddr *)&client,
                                     &addr_len);
-                if (recv_size > 0 && recv_size < 4){
+                if (recv_size > 0 && recv_size < 4)
+                {
                     printf("没有收到服务器端的确认报文，请等待重传！\n");
                 }
-                if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_ACK)) && (recv_packet.block == htons(block))){
+                if ((recv_size >= 4) && (recv_packet.optcode == htons(OPTCODE_ACK)) && (recv_packet.block == htons(block)))
+                {
                     break;
                 }
                 usleep(20000);
             }
-            if (time_wait_counter < MAX_TIME_WAIT){
+            if (time_wait_counter < MAX_TIME_WAIT)
+            {
                 printf("收到第%d个文件块的ACK报文。\n",block);
                 break;
             }
         }
-        if (send_times >= MAX_RETRANSMISSION){
+        if (send_times >= MAX_RETRANSMISSION)
+        {
             printf("第%d个文件块传送失败！\n",block);
             fclose(fp);
             return;
@@ -261,6 +297,7 @@ void put_file(char *local_file){
     return;
 }
 
-void do_list(){
+void do_list()
+{
 
 }

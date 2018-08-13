@@ -9,7 +9,8 @@ struct thread_record customer[MAX_THREAD_SIZE];   //子线程数组
  *
  *
  */
-int main(int argc, char **argv){
+int main(int argc, char **argv)
+{
     bool enough = true;         //子线程是否足够可用
     unsigned short port = DEFAULT_PORT;
     printf("--------------------------------------------\n");
@@ -17,14 +18,16 @@ int main(int argc, char **argv){
     printf("使用指南：\n");
     printf("Usage:  %s [port]  ", argv[0]);
     printf("(可用端口号:1024-65535)\n");
-    if (argc > 1){
+    if (argc > 1)
+    {
         port = (unsigned short)atoi(argv[1]);
     }
     printf("如果您未设置端口号，则服务器端的端口号默认初始值为7341。\n");
     int sockfd;
 	  struct sockaddr_in server;
 
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0){
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+    {
         printf("服务器端监听socket创建失败，请检查后重新运行！\n");
         return -1;
     }
@@ -32,7 +35,8 @@ int main(int argc, char **argv){
 	  server.sin_addr.s_addr = INADDR_ANY;
 	  server.sin_port = htons(port);
 
-    if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0){
+    if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0)
+    {
         printf("监听socket绑定失败!,请检查您输入的端口号是否符合要求。\n");
         return -1;
     }
@@ -45,11 +49,13 @@ int main(int argc, char **argv){
     socklen_t addr_len = sizeof(struct sockaddr_in);
     //对线程数组进行初始化
     int i;
-    for(i = 0; i < MAX_THREAD_SIZE; i++){
+    for(i = 0; i < MAX_THREAD_SIZE; i++)
+    {
         customer[i].usable = true;
     }
     //监听进程一直在运行
-    while(true){
+    while(true)
+    {
         printf("当前与服务器端建立的连接数为:%d\n", connect_counter);
         // 指向结构体的指针需要用malloc分配内存
         deliever = (struct deliever_para *)malloc(sizeof(struct deliever_para));
@@ -67,23 +73,28 @@ int main(int argc, char **argv){
          */
         int idx;
         void *res;
-        for (idx = 0; idx < MAX_THREAD_SIZE; idx++){
-            if (customer[idx].usable == true) {
+        for (idx = 0; idx < MAX_THREAD_SIZE; idx++)
+        {
+            if (customer[idx].usable == true)
+            {
                 customer[idx].usable = false;
                 deliever->thread_index = idx;//将可用线程下标记录下来，传递到线程start函数中，便于在结束任务后终结线程
                 break;
             }
-            else{
+            else
+            {
                 enough = false;
             }
         }
-        if (enough == true){
+        if (enough == true)
+        {
             //创建线程
             pthread_create(&customer[idx].tid, NULL, thread_func, deliever);
             //连接已终止的线程
             pthread_join(customer[idx].tid, &res);
         }
-        else{
+        else
+        {
             printf("当前服务器忙，请稍后重试！\n");
         }
 

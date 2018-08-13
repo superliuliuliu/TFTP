@@ -44,9 +44,11 @@
  *  errcode代表ERROR报文 指代差错码
  *  filename指代请求报文
  */
-struct tftp_packet{
+struct tftp_packet
+{
   unsigned short optcode;       //操作码
-  union{
+  union
+  {
       unsigned short block;    //文件中的块号
       unsigned short errcode;  //差错码
       char filename[2];        //相关信息存储的内存地址其中包含文件名 模式以及块的大小 存储形式为"%s%c%s%c%c"
@@ -55,20 +57,23 @@ struct tftp_packet{
 };
 
 // TFTP请求报文结构
-struct tftp_request{
+struct tftp_request
+{
   int size;                    //请求报文的长度?
   struct sockaddr_in client;   //客户端的地址和端口信息
   struct tftp_packet packet;   //报文
 };
 
 // 线程记录结构体
-struct thread_record {
+struct thread_record
+{
   bool usable;                  //线程是否被使用
   pthread_t tid;                //线程ID
 };
 
 // 为了在pthread_create()中传递多个参数
-struct deliever_para{
+struct deliever_para
+{
   struct tftp_request request;
   int thread_index;
 };
