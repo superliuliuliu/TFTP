@@ -35,7 +35,7 @@
 #define DEFAULT_PORT (unsigned short) 7341     //客户端的默认监听端口号
 #define MAX_PACKET_REQUEST 1024 //最大请求报文长度1024字节
 #define MAX_THREAD_SIZE 16      //最大子线程数，对应最大允许连接的客户端数
-#define DIR_CONTENT_SIZE DATASIZE*12 //用来初始化存储目录相关信息的数组
+#define DIR_CONTENT_SIZE DATASIZE*512 //用来初始化存储目录相关信息的数组
 
 /*
  *  TFTP报文数据结构
