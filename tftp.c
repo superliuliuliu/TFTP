@@ -417,7 +417,7 @@ void file_upload(struct tftp_request request, int sockfd)
 void get_list(struct tftp_request request, int sockfd)
 {
     char filepath[256];
-    char data[DIR_CONTENT_SIZE];
+    char data[DIR_CONTENT_SIZE];//动态分配内存更好  否则太小会导致数据溢出，太大会导致段错误
     struct tftp_packet file_packet;    //将文件信息封装到file_packet中
     int data_size = 0;                 //文件名等数据的大小
 
@@ -454,7 +454,7 @@ void get_list(struct tftp_request request, int sockfd)
        char mod = S_ISDIR(stat_buf.st_mode)? 'd' : 'f';
 
        //接下来将文件类型、文件名、按照一定的格式依次写入到数据数组中  data_size 为写入的字节数
-       data_size += sprintf(data + data_size, "%c\t%d\t%s\t\n", mod, (int)stat_buf.st_size, dirent->d_name);
+       data_size += sprintf(data + data_size, "%c\t%s\t\n", mod, dirent->d_name);
        //检查data是否溢出
        if (data_size >= DIR_CONTENT_SIZE)
        {

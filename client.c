@@ -312,7 +312,7 @@ void do_list()
     send_packet.optcode = htons(OPTCODE_LIST);
     //只发送一个操作码即可
     sendto(sockfd, &send_packet, sizeof(struct tftp_packet), 0, (struct sockaddr*)&server, addr_len);
-    printf("文件类型\t大小\t文件名\n");
+    printf("文件类型\t文件名\n");
 
     //开始接收数据并发送ack报文
     do
